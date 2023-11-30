@@ -16,6 +16,7 @@
  *   Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -36,6 +37,7 @@ struct rs_rig *add_rig(rig_model_t model)
   rig_list[rig_count_value].model = model;
   rig_list[rig_count_value].rig = rig_init(model);
   rig_list[rig_count_value].number = rig_count_value;
+  rig_list[rig_count_value].ignore_digital_mode = false;
   rig_count_value++;
   return &(rig_list[rig_count_value-1]);
 }

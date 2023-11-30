@@ -16,9 +16,11 @@
  *   Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <asm-generic/errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "rigsync.h"
 
@@ -65,6 +67,14 @@ void read_args(int argc, char **argv)
         exit(1);
       }
     }
+    else if(!(strcmp(argv[ii], "--ignore-digital")))
+    {
+      if (rig != NULL)
+      {
+        rig->ignore_digital_mode = true;
+        gprintf(1, "ignoring special digital modes of TRX\n");
+      }
+    }
 #ifdef DEBUG
     else if(!(strcmp(argv[ii], "-d")))
     {
@@ -88,35 +98,27 @@ void read_args(int argc, char **argv)
 
 void usage(int argc, char **argv)
 {
-  fprintf(stderr, "usage:\n");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "    %s <rig definition> <rig definition> ...\n", argv[0]);
-  fprintf(stderr, "            [-n <rig number>]\n");
+    fprintf(stderr, "Usage: %s <RIG_DEF> <RIG_DEF> [<RIG_DEF>] [OPTIONS]\n", argv[0]);
+    fprintf(stderr, "\n");
+    fprintf(stderr, "Keeps defined rigs in sync according to options\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "OPTIONS:\n");
+    fprintf(stderr, "  -h                 display this help\n");
+    fprintf(stderr, "  -n <rig number>    number of the rig the others are synced to on startup (default: 1)\n");
 #ifdef DEBUG
-  fprintf(stderr, "            [-d <debug level>]\n");
+    fprintf(stderr, "  -d <level>         debug output verbosity\n");
 #endif
-  fprintf(stderr, "\n");
-  fprintf(stderr, "        Keep defined rigs in sync.\n");
-  fprintf(stderr, "        Each <rig definition> entry must start with:\n");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "             -m <model number>\n");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "        and be followed optionally by (depending on the rig):\n");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "             -r <port/connection>\n");
-  fprintf(stderr, "             -s <baud rate>\n");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "        The \"-n <rig number>\" argument defines which rig in the list\n");
-  fprintf(stderr, "        the others are synched to on startup.  The default is the\n");
-  fprintf(stderr, "        first (1).\n");
-#ifdef DEBUG
-  fprintf(stderr, "\n");
-  fprintf(stderr, "        The \"-d <debug level>\" argument will cause various debug\n");
-  fprintf(stderr, "        statements to be printed depending on the debug level.\n");
-#endif
-  fprintf(stderr, "\n");
-  fprintf(stderr, "    %s -h\n", argv[0]);
-  fprintf(stderr, "        Print this help message.\n");
-  fprintf(stderr, "\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "Rig Definition:\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "  RIG_DEF = -m <model_number> [-r <port/conn.>] [-s <baud rate>] [--ignore-digital]\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "RIG_DEF options:\n");
+    fprintf(stderr, "  -m <model number>    Set the model number according to hamlib ( rigctl -l )\n");
+    fprintf(stderr, "  -r <port/conn.>      Connection to the rig e.g. /dev/ttyUSB0 or IP:PORT (HamlibNet)\n");
+    fprintf(stderr, "  -s <baud rate>       baud rate using serial connection\n");
+    fprintf(stderr, "  --ignore-digital     to convert PKTLSB/PKTUSB to normal LSB/USB.\n");
+    fprintf(stderr, "                       Helps when syncing e.g. Icom IC-7300 and QrpLabs QDX\n");
+    fprintf(stderr, "                       (QDX is not capable of PKTUSB/PKTLSB)\n");
   exit(1);
 }

@@ -22,6 +22,8 @@
 // note Ubuntu 20.04 uses hamlib 3.3
 #include <hamlib/rig.h>
 
+#include "stdbool.h"
+
 // Hamlib 4.x renames FILEPATHLEN to HAMLIB_FILEPATHLEN
 #ifndef HAMLIB_FILPATHLEN
 #define HAMLIB_FILPATHLEN FILPATHLEN
@@ -43,6 +45,7 @@ struct rs_rig
   struct rs_rig_state state;
   int dirty;
   int number;
+  bool ignore_digital_mode;
 };
 
 /* args.c */

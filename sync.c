@@ -16,6 +16,7 @@
  *   Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <hamlib/rig.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -115,7 +116,23 @@ void rig_write_state(struct rs_rig *rig, struct rs_rig_state *new_state)
   struct rs_rig_state *cur_state = &(rig->state);
 
   rig_set_freq(rig->rig, RIG_VFO_CURR, (new_state->freq));
-  rig_set_mode(rig->rig, RIG_VFO_CURR, (new_state->mode), (cur_state->width));
+  rmode_t rig_mode = new_state->mode;
+  if (rig->ignore_digital_mode)
+  {
+    switch (rig_mode)
+    {
+        case RIG_MODE_PKTUSB:
+            rig_mode = RIG_MODE_USB;
+            break;
+        case RIG_MODE_PKTLSB:
+            rig_mode = RIG_MODE_LSB;
+            break;
+        default:
+            break;
+    }
+    gprintf(1, "converting mode %s to %s\n", rig_strrmode(new_state->mode), rig_strrmode(rig_mode));
+  }
+  rig_set_mode(rig->rig, RIG_VFO_CURR, rig_mode, (cur_state->width));
 
   rig_read_state(rig);
   cur_state = &(rig->state);
